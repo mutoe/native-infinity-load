@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Native infinity load</title>
+
+    <style>
+        #list li img {
+            min-height: 200px;
+        }
+        #check-point {
+            position: relative;
+            top: -200px;
+        }
+    </style>
+</head>
+<body>
+
+<form onsubmit="return false">
+    <input id="keyword" type="search" placeholder="Keyword">
+    <button id="search">Search</button>
+</form>
+
+<ul id="list"></ul>
+<div id="check-point"></div>
+
+<script>
+    const api = 'https://api.jikan.moe/v3/search/anime'
+    const limit = 15
+    let page, keyword
+
+    const $ = (...args) => document.querySelector(...args)
+
+    const updateList = (list) => {
+        const ul = $('#list')
+        list.forEach(item => {
+            const img = document.createElement('img')
+            img.src = item.image_url
+            const li = document.createElement('li')
+            li.appendChild(img)
+            ul.appendChild(li)
+        })
+    }
+
+    const onClickSearch = () => {
+        page = 1
+        keyword = $('#keyword').value
+        handleSearch()
+    }
+    $('#search').addEventListener('click', onClickSearch)
+
+    const handleSearch = () => {
+        const qs = new URLSearchParams({q: keyword, limit, page})
+
+        window.fetch(`${api}?${qs.toString()}`)
+            .then(res => res.json())
+            .then(({results}) => updateList(results))
+    }
+
+    const nextPage = () => {
+        page++
+        handleSearch()
+    }
+
+    const io = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return
+        nextPage()
+    })
+    io.observe($('#check-point'))
+</script>
+</body>
+</html>
