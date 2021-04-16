@@ -48,6 +48,7 @@
     const onClickSearch = () => {
         page = 1
         keyword = $('#keyword').value
+        $('#list').innerHTML = ''
         handleSearch()
     }
     $('#search').addEventListener('click', onClickSearch)
